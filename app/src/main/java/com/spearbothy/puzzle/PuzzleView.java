@@ -1,12 +1,13 @@
 package com.spearbothy.puzzle;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -17,14 +18,17 @@ import java.util.TreeMap;
  */
 
 public class PuzzleView extends View {
+    private static final int DEFAULT_COLUMN = 3;
+    private static final int DEFAULT_LINE = 3;
+
     private int mHeight;
     private int mWidth;
     private Bitmap mSourceBitmap;
     private Paint mPaint;
     private int mBitmapHeight;
     private int mBitmapWidth;
-    private int mLine = 3;
-    private int mColumn = 3;
+    private int mLine;
+    private int mColumn;
     private TreeMap<Integer, PuzzleBlock> mBlocks = new TreeMap<>();
     private int mBlockHeight;
     private int mBlockWidth;
@@ -39,6 +43,10 @@ public class PuzzleView extends View {
 
     public PuzzleView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.PuzzleView);
+        mColumn = ta.getInt(R.styleable.PuzzleView_puzzleColumn, DEFAULT_COLUMN);
+        mLine = ta.getInt(R.styleable.PuzzleView_puzzleLine, DEFAULT_LINE);
+        ta.recycle();
         mPaint = new Paint();
         mPaint.setAntiAlias(true);
     }
@@ -61,7 +69,7 @@ public class PuzzleView extends View {
                 MeasureSpec.makeMeasureSpec(mHeight, MeasureSpec.EXACTLY));
     }
 
-    public int getScreenWidth() {
+    private int getScreenWidth() {
         return getResources().getDisplayMetrics().widthPixels;
     }
 
@@ -69,8 +77,31 @@ public class PuzzleView extends View {
         if (bitmap == null) {
             return;
         }
-        mSourceBitmap = bitmap;
+        mSourceBitmap = resizeBitmap(bitmap);
         reset();
+    }
+
+    private Bitmap resizeBitmap(Bitmap bitmap) {
+        int width = bitmap.getWidth();
+        int height = bitmap.getHeight();
+        float scale;
+        if (width > height) {
+            float targetWidth = getMeasuredWidth();
+            scale = targetWidth / width;
+        } else {
+            float targetHeight = getMeasuredHeight();
+            scale = targetHeight / height;
+        }
+        Matrix matrix = new Matrix();
+        matrix.postScale(scale, scale);
+        Bitmap newBitMap = Bitmap.createBitmap(bitmap, 0, 0, width, height,
+                matrix, true);
+        bitmap.recycle();
+        return newBitMap;
+    }
+
+    public Bitmap getBitmap() {
+        return mSourceBitmap;
     }
 
     /**
@@ -104,8 +135,8 @@ public class PuzzleView extends View {
         }
     }
 
-    public void randomBlocks() {
-        for (int i = 0; i < 40; ) {
+    private void randomBlocks() {
+        for (int i = 0; i < mColumn * mLine * 4; ) {
             int random = (int) (Math.random() * (mColumn * mLine));
             if (isSwap(mBlankBlock.getMoveIndex(), random)) {
                 i++;
@@ -147,7 +178,6 @@ public class PuzzleView extends View {
             }
             int line = block.getMoveIndex() / mColumn;
             int column = block.getMoveIndex() % mColumn;
-            Log.i("info", "line:" + line + "column" + column);
             canvas.drawBitmap(block.getBitmap(), column * mBlockWidth, line * mBlockHeight, mPaint);
         }
     }
@@ -167,16 +197,16 @@ public class PuzzleView extends View {
                             mListener.onSuccess();
                         }
                     }
+                    invalidate();
                 }
                 break;
             default:
                 break;
         }
-        invalidate();
         return true;
     }
 
-    public boolean isSuccess() {
+    private boolean isSuccess() {
         for (PuzzleBlock block : mBlocks.values()) {
             if (!block.isSuccess()) {
                 return false;
@@ -204,21 +234,13 @@ public class PuzzleView extends View {
         }
     }
 
-    public boolean isSwap(int source, int target) {
+    private boolean isSwap(int source, int target) {
         int sourceLine = source / mColumn;
         int targetLine = target / mColumn;
         if (sourceLine == targetLine) {
-            if (Math.abs(source - target) == 1) {
-                return true;
-            } else {
-                return false;
-            }
+            return Math.abs(source - target) == 1;
         } else {
-            if (Math.abs(source - target) == mColumn) {
-                return true;
-            } else {
-                return false;
-            }
+            return Math.abs(source - target) == mColumn;
         }
     }
 
@@ -226,9 +248,9 @@ public class PuzzleView extends View {
         mListener = listener;
     }
 
-
     public abstract static class OnPuzzleListener {
         public abstract void onSuccess();
+
         protected void onMove() {}
     }
 }

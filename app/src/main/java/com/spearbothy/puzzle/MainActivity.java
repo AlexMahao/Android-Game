@@ -5,7 +5,6 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -14,14 +13,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     public static final int SELECT = 1;
-    public static final int CROP = 2;
     private ImageView mTargetView;
     private PuzzleView mPuzzleView;
     private TextView mHintView;
@@ -35,6 +32,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mPuzzleView = (PuzzleView) findViewById(R.id.puzzle);
         findViewById(R.id.select).setOnClickListener(this);
         mHintView = (TextView) findViewById(R.id.hint);
+        // 回调监听
         mPuzzleView.setOnPuzzleListener(new PuzzleView.OnPuzzleListener() {
             @Override
             public void onSuccess() {
@@ -89,30 +87,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 imagePath = localUri.getPath();
             }
             Bitmap sourceBitmap = BitmapFactory.decodeFile(imagePath);
-            Bitmap bitmap = compressBitmap(sourceBitmap);
-            Log.i("info", sourceBitmap.getByteCount() + "--->" + bitmap.getByteCount());
-            mPuzzleView.setBitmap(bitmap);
-            mTargetView.setImageBitmap(bitmap);
+            mPuzzleView.setBitmap(sourceBitmap);
+            mTargetView.setImageBitmap(mPuzzleView.getBitmap());
             mCount = 0;
         }
     }
 
-    // 矩阵压缩
-    public Bitmap compressBitmap(Bitmap bitMap) {
-        int width = bitMap.getWidth();
-        int height = bitMap.getHeight();
-        float scale;
-        if (width > height) {
-            float targetWidth = mPuzzleView.getMeasuredWidth();
-            scale = targetWidth / width;
-        } else {
-            float targetHeight = mPuzzleView.getMeasuredHeight();
-            scale = targetHeight / height;
-        }
-        Matrix matrix = new Matrix();
-        matrix.postScale(scale, scale);
-        Bitmap newBitMap = Bitmap.createBitmap(bitMap, 0, 0, width, height,
-                matrix, true);
-        return newBitMap;
-    }
 }

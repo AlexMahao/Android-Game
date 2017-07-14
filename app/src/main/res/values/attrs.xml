@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="PuzzleView">
+        <attr name="puzzleLine" format="integer" />
+        <attr name="puzzleColumn" format="integer" />
+    </declare-styleable>
+</resources>
