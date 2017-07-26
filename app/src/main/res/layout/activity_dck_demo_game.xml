@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+
+    <com.spearbothy.puzzle.dianchengkuai.DCKGameView
+        android:id="@+id/game"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+    <Button
+        android:background="#ff773f"
+        android:id="@+id/go"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:textColor="#fff"
+        android:text="go" />
+    <TextView
+        android:id="@+id/level"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="15dp"
+        android:layout_marginTop="15dp"
+        android:text="level:10" />
+    <TextView
+        android:layout_marginLeft="15dp"
+        android:layout_alignBaseline="@id/level"
+        android:layout_toRightOf="@id/level"
+        android:id="@+id/hit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="hit:30" />
+    <TextView
+        android:id="@+id/pause"
+        android:gravity="center_horizontal"
+        android:layout_width="60dp"
+        android:layout_height="30dp"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginRight="15dp"
+        android:layout_marginTop="15dp"
+        android:text="pause"
+        android:textColor="#ff773f" />
+
+    <LinearLayout
+        android:id="@+id/people"
+        android:layout_marginRight="15dp"
+        android:layout_marginBottom="15dp"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <ImageView
+            android:src="@mipmap/people"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+</RelativeLayout>
